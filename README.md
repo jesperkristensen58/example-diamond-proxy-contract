@@ -1,0 +1,1 @@
+# example-diamond-proxy-contract
