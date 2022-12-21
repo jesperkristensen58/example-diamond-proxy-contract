@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity =0.8.9;
 
 import { LibERC20 } from  "../libraries/LibERC20.sol";
 
@@ -13,7 +13,7 @@ contract ERC20Facet {
     }
 
     function erc20approve(address spender, uint256 amount) external {
-        address owner = msg.sender;
+        address owner = _msgSender();
         LibERC20.erc20approve(owner, spender, amount);
     }
 
@@ -26,7 +26,11 @@ contract ERC20Facet {
     }
 
     function erc20transferFrom(address from, address to, uint256 amount) external returns (bool) {
-        address spender = msg.sender;
+        address spender = _msgSender();
         return LibERC20.erc20transferFrom(spender, from, to, amount);
+    }
+
+    function _msgSender() private view returns (address) {
+        return msg.sender;
     }
 }

@@ -1,5 +1,5 @@
 /// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity =0.8.9;
 
 import { LibDiamond } from  "../libraries/LibDiamond.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -101,8 +101,6 @@ library LibERC20 {
         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
         unchecked {
             ds._erc20_balances[from] = fromBalance - amount;
-            // Overflow not possible: the sum of all balances is capped by totalSupply, and the sum is preserved by
-            // decrementing then incrementing.
             ds._erc20_balances[to] += amount;
         }
 

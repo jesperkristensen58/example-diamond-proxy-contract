@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENCED
-pragma solidity ^0.8.9;
+pragma solidity =0.8.9;
 
 import { LibNFT } from  "../libraries/LibNFT.sol";
 import { LibERC20 } from  "../libraries/LibERC20.sol";
@@ -7,6 +7,7 @@ import { LibERC20 } from  "../libraries/LibERC20.sol";
 /**
  * @notice the NFT Facet contract which will be registered with the Diamond contract as its facet.
  * This contract is stateless and therefore leverages the LibNFT to store state.
+ * It also relies on the ERC20 facet so uses that library as well for internal function access.
  * @author Jesper Kristensen
  */
 contract NFTFacet {

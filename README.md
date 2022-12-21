@@ -7,17 +7,19 @@ To run it, simply type:
 ```shell
 > npx hardhat test
 
+Compiling 6 files with 0.8.9
+Compilation finished successfully
 
-  Create Diamond Contract
-DiamondCutFacet deployed: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-Diamond deployed: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-    ✓ should add the NFT facet (61ms)
+
+  Create a Simple Diamond Contract
+Diamond deployed: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+    ✓ should add the NFT facet (78ms)
+    ✓ should mint the nft as expected and be able to transfer it (110ms)
     ✓ should add the ERC20 facet
-    ✓ should mint the nft as expected and be able to transfer it (102ms)
-    ✓ should add ERC20 Token functionality: to buy the NFT with the token (147ms)
+    ✓ should add ERC20 Token functionality: to buy the NFT with the token (146ms)
 
 
-  4 passing (862ms)
+  4 passing (743ms)
 ```
 
 That's it.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity =0.8.9;
 
 /******************************************************************************\
 * Author: Nick Mudge <nick@perfectabstractions.com> (https://twitter.com/mudgen)
@@ -9,23 +9,22 @@ pragma solidity ^0.8.0;
 /******************************************************************************/
 
 import { LibDiamond } from "./libraries/LibDiamond.sol";
-import { IDiamondCut } from "./interfaces/IDiamondCut.sol";
 
+/**
+ * @notice A simple Diamond contract.
+ */
 contract Diamond {    
 
-    constructor(address _contractOwner, address _diamondCutFacet) payable {        
+    constructor(address _contractOwner) payable {        
         LibDiamond.setContractOwner(_contractOwner);
+    }
 
-        // Add the diamondCut external function from the diamondCutFacet
-        IDiamondCut.FacetCut[] memory cut = new IDiamondCut.FacetCut[](1);
-        bytes4[] memory functionSelectors = new bytes4[](1);
-        functionSelectors[0] = IDiamondCut.diamondCut.selector;
-        cut[0] = IDiamondCut.FacetCut({
-            facetAddress: _diamondCutFacet, 
-            action: IDiamondCut.FacetCutAction.Add, 
-            functionSelectors: functionSelectors
-        });
-        LibDiamond.diamondCut(cut, address(0), "");        
+    /// Cut new facets into this diamond
+    function diamondCut(LibDiamond.FacetCut calldata _diamondCut) external {
+        // only the diamond owner can cut new facets
+        LibDiamond.enforceIsContractOwner();
+        // cut the facet into the diamond
+        LibDiamond.diamondCut(_diamondCut);
     }
 
     // Find facet for function that is called and execute the
