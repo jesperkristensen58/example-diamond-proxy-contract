@@ -30,6 +30,10 @@ library LibDiamond {
         uint256 facetAddressPosition; // position of facetAddress in facetAddresses array
     }
 
+
+    /**
+     * @notice global storage for all facets
+     */
     struct DiamondStorage {
         // maps function selector to the facet address and
         // the position of the selector in the facetFunctionSelectors.selectors array
@@ -49,10 +53,7 @@ library LibDiamond {
         mapping(address => uint256) _erc20_balances;
         mapping(address => mapping(address => uint256)) _erc20_allowances;
     }
-
-    /**
-     * @notice global storage for all facets
-     */
+    // access this storage via:
     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
         bytes32 position = DIAMOND_STORAGE_POSITION;
         assembly {
@@ -60,6 +61,7 @@ library LibDiamond {
         }
     }
 
+    // contract ownership:
     function setContractOwner(address _newOwner) internal {
         DiamondStorage storage ds = diamondStorage();
         address previousOwner = ds.contractOwner;
@@ -67,18 +69,15 @@ library LibDiamond {
         emit OwnershipTransferred(previousOwner, _newOwner);
     }
 
-    function contractOwner() internal view returns (address contractOwner_) {
-        contractOwner_ = diamondStorage().contractOwner;
+    function contractOwner() internal view returns (address) {
+        return diamondStorage().contractOwner;
     }
 
     function enforceIsContractOwner() internal view {
-        require(_msgSender() == diamondStorage().contractOwner, "LibDiamond: Must be contract owner");
+        require(_msgSender() == contractOwner(), "LibDiamond: Must be contract owner");
     }
 
-    function _msgSender() private view returns (address) {
-        return msg.sender;
-    }
-
+    // The main function that is used to cut new facets into the diamond (aka add a new contract and its functions to the diamond)
     // Internal function version of diamondCut
     function diamondCut(FacetCut calldata _diamondCut)
     internal
@@ -95,7 +94,7 @@ library LibDiamond {
         uint96 selectorPosition = uint96(ds.facetFunctionSelectors[facetAddress].functionSelectors.length);
 
         // add new facet address if it does not exist
-        if (selectorPosition == 0) { // no selectors have been registered under this facet: hence it does not exist
+        if (selectorPosition == 0) { // no selectors have been registered under this facet ever: hence, the facet does not exist; add it:
             enforceHasContractCode(facetAddress, "LibDiamondCut: New facet has no code");
             // store facet address
             ds.facetFunctionSelectors[facetAddress].facetAddressPosition = ds.facetAddresses.length;
@@ -107,8 +106,8 @@ library LibDiamond {
             bytes4 selector = functionSelectors[selectorIndex];
             
             // ensure the facet does not already exist:
-            address currentFacetAddress = ds.selectorToFacetAndPosition[selector].facetAddress;
-            require(currentFacetAddress == address(0), "LibDiamondCut: Can't add function that already exists");
+            address currentFacetAddressIfAny = ds.selectorToFacetAndPosition[selector].facetAddress;
+            require(currentFacetAddressIfAny == address(0), "LibDiamondCut: Can't add function that already exists");
 
             // ADD The function (selector) here:
             // map the selector to the position in the overall selector array and also map it to the facet address
@@ -121,7 +120,13 @@ library LibDiamond {
         }
         emit DiamondCut(_diamondCut);
     }
-    function enforceHasContractCode(address _contract, string memory _errorMessage) internal view {
+
+    // helpers
+    function _msgSender() private view returns (address) {
+        return msg.sender;
+    }
+
+    function enforceHasContractCode(address _contract, string memory _errorMessage) private view {
         uint256 contractSize;
         assembly {
             contractSize := extcodesize(_contract)
