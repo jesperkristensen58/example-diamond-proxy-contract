@@ -6,7 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @notice The lobrary files supporting the ERC20 Facet of the Diamond.
- * Note that we are not using separate data spaces for each facet - they all tap into the `libDiamond` space.
+ * Note that we are not using separate data spaces for each facet - they all tap into the `libDiamond` global storage space.
  * The following are the ERC20 functions from the OZ implementation.
  * @author Jesper Kristensen - but copied from the OZ implementation and modified to be used as a facet
  */
@@ -18,6 +18,7 @@ library LibERC20 {
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Transfer(address indexed from, address indexed to, uint256 value);
 
+    // @dev due to function naming clashes in the diamond we need to implement our own "namespace" here and prepend "erc20".
     function erc20mint(address account, uint256 amount) internal {
         require(account != address(0), "ERC20: mint to the zero address");
 
