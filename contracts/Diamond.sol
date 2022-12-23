@@ -11,7 +11,7 @@ pragma solidity =0.8.9;
 import { LibDiamond } from "./libraries/LibDiamond.sol";
 
 /**
- * @notice A simple Diamond contract.
+ * @notice A simple Diamond contract with two facets: and NFT facet and an ERC20 facet.
  */
 contract Diamond {    
 

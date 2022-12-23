@@ -24,12 +24,12 @@ library LibERC20 {
 
         _erc20_beforeTokenTransfer(address(0), account, amount);
 
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
 
-        ds._erc20_totalSupply += amount;
+        ds._totalSupply += amount;
         unchecked {
             // Overflow not possible: balance + amount is at most totalSupply + amount, which is checked above.
-            ds._erc20_balances[account] += amount;
+            ds._balances[account] += amount;
         }
         emit Transfer(address(0), account, amount);
 
@@ -37,8 +37,8 @@ library LibERC20 {
     }
 
     function erc20balanceOf(address account) internal view returns (uint256) {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-        return ds._erc20_balances[account];   
+        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
+        return ds._balances[account];   
     }
 
     function erc20transferFrom(address spender, address from, address to, uint256 amount) internal returns (bool) {
@@ -64,13 +64,13 @@ library LibERC20 {
 
         _erc20_beforeTokenTransfer(from, to, amount);
 
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
 
-        uint256 fromBalance = ds._erc20_balances[from];
+        uint256 fromBalance = ds._balances[from];
         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
         unchecked {
-            ds._erc20_balances[from] = fromBalance - amount;
-            ds._erc20_balances[to] += amount;
+            ds._balances[from] = fromBalance - amount;
+            ds._balances[to] += amount;
         }
 
         emit Transfer(from, to, amount);
@@ -97,13 +97,13 @@ library LibERC20 {
 
         _erc20_beforeTokenTransfer(from, to, amount);
 
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
 
-        uint256 fromBalance = ds._erc20_balances[from];
+        uint256 fromBalance = ds._balances[from];
         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
         unchecked {
-            ds._erc20_balances[from] = fromBalance - amount;
-            ds._erc20_balances[to] += amount;
+            ds._balances[from] = fromBalance - amount;
+            ds._balances[to] += amount;
         }
 
         emit Transfer(from, to, amount);
@@ -126,8 +126,8 @@ library LibERC20 {
     }
 
     function _erc20allowance(address owner, address spender) internal view returns (uint256) {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
-        return ds._erc20_allowances[owner][spender];
+        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
+        return ds._allowances[owner][spender];
     }
 
     function _erc20_approve(
@@ -137,9 +137,9 @@ library LibERC20 {
     ) internal {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
 
-        ds._erc20_allowances[owner][spender] = amount;
+        ds._allowances[owner][spender] = amount;
 
         emit Approval(owner, spender, amount);
     }

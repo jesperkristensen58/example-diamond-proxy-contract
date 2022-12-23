@@ -14,12 +14,12 @@ library LibNFT {
     /***************************************************************************************
                Library to support the NFT Facet (contracts/facets/NFTFacet.sol)
     ****************************************************************************************/
-    // we need to import all the events here
+    
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
     // now define all the functions we want the NFT Facet to use:
     function ownerOf(uint256 tokenId) internal view returns (address) {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
 
         address owner = ds._owners[tokenId];
         require(owner != address(0), "ERC721: invalid token ID");
@@ -29,14 +29,14 @@ library LibNFT {
     function balanceOf(address owner) public view returns (uint256) {
         require(owner != address(0), "ERC721: address zero is not a valid owner");
 
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
         return ds._balances[owner];
     }
 
     function mint(address to, uint256 tokenId) internal {
         require(to != address(0), "ERC721: mint to the zero address");
 
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
         require(ds._owners[tokenId] == address(0), "ERC721: token already minted");
 
         _beforeTokenTransfer(address(0), to, tokenId, 1);
@@ -56,7 +56,7 @@ library LibNFT {
         require(ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
 
         _beforeTokenTransfer(from, to, tokenId, 1);
 
@@ -78,7 +78,7 @@ library LibNFT {
     }
 
     function burn(uint256 tokenId) internal {
-        LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
 
         address owner = ownerOf(tokenId);
 
@@ -109,7 +109,7 @@ library LibNFT {
         uint256 batchSize
     ) internal {
         if (batchSize > 1) {
-            LibDiamond.DiamondStorage storage ds = LibDiamond.diamondStorage();
+            LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
 
             if (from != address(0)) {
                 ds._balances[from] -= batchSize;
