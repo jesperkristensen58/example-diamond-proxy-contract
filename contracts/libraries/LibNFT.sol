@@ -1,12 +1,10 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity =0.8.9;
 
-import { LibDiamond } from  "../libraries/LibDiamond.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
  * @notice The lobrary files supporting the NFT (ERC721) Facet of the Diamond.
- * Note that we are not using separate data spaces for each facet - they all tap into the `libDiamond` global storage space.
  * The following are the ERC721 functions from the OZ implementation.
  * @author Jesper Kristensen - but copied from the OZ implementation and modified to be used as a facet
  */
@@ -14,12 +12,34 @@ library LibNFT {
     /***************************************************************************************
                Library to support the NFT Facet (contracts/facets/NFTFacet.sol)
     ****************************************************************************************/
+
+    /** ==================================================================
+                            NFT Storage Space
+    =====================================================================*/
+    bytes32 constant NFT_STORAGE_POSITION = keccak256("facet.nft.diamond.storage");
+
+    /**
+     * @notice NFT storage for the NFT facet
+     */
+    struct Storage {
+        mapping(uint256 => address) _owners;
+        mapping(address => uint256) _balances;
+        mapping(uint256 => address) _tokenApprovals;
+    }
+    
+    // access nft storage via:
+    function getStorage() internal pure returns (Storage storage ds) {
+        bytes32 position = NFT_STORAGE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
     
     event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
 
     // now define all the functions we want the NFT Facet to use:
     function ownerOf(uint256 tokenId) internal view returns (address) {
-        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
+        Storage storage ds = getStorage();
 
         address owner = ds._owners[tokenId];
         require(owner != address(0), "ERC721: invalid token ID");
@@ -29,14 +49,14 @@ library LibNFT {
     function balanceOf(address owner) public view returns (uint256) {
         require(owner != address(0), "ERC721: address zero is not a valid owner");
 
-        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
+        Storage storage ds = getStorage();
         return ds._balances[owner];
     }
 
     function mint(address to, uint256 tokenId) internal {
         require(to != address(0), "ERC721: mint to the zero address");
 
-        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
+        Storage storage ds = getStorage();
         require(ds._owners[tokenId] == address(0), "ERC721: token already minted");
 
         _beforeTokenTransfer(address(0), to, tokenId, 1);
@@ -56,7 +76,7 @@ library LibNFT {
         require(ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
         require(to != address(0), "ERC721: transfer to the zero address");
 
-        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
+        Storage storage ds = getStorage();
 
         _beforeTokenTransfer(from, to, tokenId, 1);
 
@@ -78,7 +98,7 @@ library LibNFT {
     }
 
     function burn(uint256 tokenId) internal {
-        LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
+        Storage storage ds = getStorage();
 
         address owner = ownerOf(tokenId);
 
@@ -109,7 +129,7 @@ library LibNFT {
         uint256 batchSize
     ) internal {
         if (batchSize > 1) {
-            LibDiamond.NFTStorage storage ds = LibDiamond.nftStorage();
+            Storage storage ds = getStorage();
 
             if (from != address(0)) {
                 ds._balances[from] -= batchSize;

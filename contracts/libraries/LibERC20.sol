@@ -1,12 +1,10 @@
 /// SPDX-License-Identifier: MIT
 pragma solidity =0.8.9;
 
-import { LibDiamond } from  "../libraries/LibDiamond.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
  * @notice The lobrary files supporting the ERC20 Facet of the Diamond.
- * Note that we are not using separate data spaces for each facet - they all tap into the `libDiamond` global storage space.
  * The following are the ERC20 functions from the OZ implementation.
  * @author Jesper Kristensen - but copied from the OZ implementation and modified to be used as a facet
  */
@@ -14,6 +12,29 @@ library LibERC20 {
     /***************************************************************************************
                Library to support the ERC20 Facet (contracts/facets/ERC20Facet.sol)
     ****************************************************************************************/
+    
+    /** ==================================================================
+                            ERC20 Storage Space
+    =====================================================================*/
+    // each facet gets their own struct to store state into
+    bytes32 constant ERC20_STORAGE_POSITION = keccak256("facet.erc20.diamond.storage");
+
+    /**
+     * @notice ERC20 storage for the ERC20 facet
+     */
+    struct Storage {
+        uint256 _totalSupply;
+        mapping(address => uint256) _balances;
+        mapping(address => mapping(address => uint256)) _allowances;
+    }
+    
+    // access erc20 storage via:
+    function getStorage() internal pure returns (Storage storage ds) {
+        bytes32 position = ERC20_STORAGE_POSITION;
+        assembly {
+            ds.slot := position
+        }
+    }
 
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event Transfer(address indexed from, address indexed to, uint256 value);
@@ -24,7 +45,7 @@ library LibERC20 {
 
         _erc20_beforeTokenTransfer(address(0), account, amount);
 
-        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
+        Storage storage ds = getStorage();
 
         ds._totalSupply += amount;
         unchecked {
@@ -37,7 +58,7 @@ library LibERC20 {
     }
 
     function erc20balanceOf(address account) internal view returns (uint256) {
-        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
+        Storage storage ds = getStorage();
         return ds._balances[account];   
     }
 
@@ -64,7 +85,7 @@ library LibERC20 {
 
         _erc20_beforeTokenTransfer(from, to, amount);
 
-        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
+        Storage storage ds = getStorage();
 
         uint256 fromBalance = ds._balances[from];
         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
@@ -97,7 +118,7 @@ library LibERC20 {
 
         _erc20_beforeTokenTransfer(from, to, amount);
 
-        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
+        Storage storage ds = getStorage();
 
         uint256 fromBalance = ds._balances[from];
         require(fromBalance >= amount, "ERC20: transfer amount exceeds balance");
@@ -126,7 +147,7 @@ library LibERC20 {
     }
 
     function _erc20allowance(address owner, address spender) internal view returns (uint256) {
-        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
+        Storage storage ds = getStorage();
         return ds._allowances[owner][spender];
     }
 
@@ -137,7 +158,7 @@ library LibERC20 {
     ) internal {
         require(owner != address(0), "ERC20: approve from the zero address");
         require(spender != address(0), "ERC20: approve to the zero address");
-        LibDiamond.ERC20Storage storage ds = LibDiamond.erc20Storage();
+        Storage storage ds = getStorage();
 
         ds._allowances[owner][spender] = amount;
 

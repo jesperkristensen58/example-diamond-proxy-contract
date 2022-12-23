@@ -9,12 +9,9 @@ pragma solidity =0.8.9;
 /******************************************************************************/
 
 library LibDiamond {
-    /// Storage slots of this diamond and its facets:
+    /// Storage slots of this diamond
     // load the storage of the diamond contract at a specific location:
     bytes32 constant DIAMOND_STORAGE_POSITION = keccak256("diamond.standard.diamond.storage");
-    // each facet gets their own struct to store state into
-    bytes32 constant NFT_STORAGE_POSITION = keccak256("diamond.nft.diamond.storage");
-    bytes32 constant ERC20_STORAGE_POSITION = keccak256("diamond.erc20.diamond.storage");
 
     event DiamondCut(FacetCut _diamondCut);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -140,48 +137,6 @@ library LibDiamond {
     // access core storage via:
     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
         bytes32 position = DIAMOND_STORAGE_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /** ==================================================================
-                            NFT Storage Space
-    =====================================================================*/
-
-    /**
-     * @notice NFT storage for the NFT facet
-     */
-    struct NFTStorage {
-        mapping(uint256 => address) _owners;
-        mapping(address => uint256) _balances;
-        mapping(uint256 => address) _tokenApprovals;
-    }
-    
-    // access nft storage via:
-    function nftStorage() internal pure returns (NFTStorage storage ds) {
-        bytes32 position = NFT_STORAGE_POSITION;
-        assembly {
-            ds.slot := position
-        }
-    }
-
-    /** ==================================================================
-                            ERC20 Storage Space
-    =====================================================================*/
-
-    /**
-     * @notice ERC20 storage for the ERC20 facet
-     */
-    struct ERC20Storage {
-        uint256 _totalSupply;
-        mapping(address => uint256) _balances;
-        mapping(address => mapping(address => uint256)) _allowances;
-    }
-    
-    // access erc20 storage via:
-    function erc20Storage() internal pure returns (ERC20Storage storage ds) {
-        bytes32 position = ERC20_STORAGE_POSITION;
         assembly {
             ds.slot := position
         }
