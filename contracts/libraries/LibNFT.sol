@@ -5,7 +5,8 @@ import { LibDiamond } from  "../libraries/LibDiamond.sol";
 import { IERC721 } from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /**
- * @notice The lobrary files supporting the NFT Facet of the Diamond.
+ * @notice The lobrary files supporting the NFT (ERC721) Facet of the Diamond.
+ * Note that we are not using separate data spaces for each facet - they all tap into the `libDiamond` global storage space.
  * The following are the ERC721 functions from the OZ implementation.
  * @author Jesper Kristensen - but copied from the OZ implementation and modified to be used as a facet
  */
