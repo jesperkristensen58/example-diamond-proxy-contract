@@ -30,7 +30,6 @@ library LibDiamond {
         uint256 facetAddressPosition; // position of facetAddress in facetAddresses array
     }
 
-
     /**
      * @notice global storage for all facets
      */
@@ -53,6 +52,7 @@ library LibDiamond {
         mapping(address => uint256) _erc20_balances;
         mapping(address => mapping(address => uint256)) _erc20_allowances;
     }
+    
     // access this storage via:
     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
         bytes32 position = DIAMOND_STORAGE_POSITION;
