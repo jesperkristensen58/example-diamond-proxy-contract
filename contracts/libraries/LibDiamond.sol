@@ -36,7 +36,7 @@ library LibDiamond {
 
     /// Core diamond state:
 
-    // contract ownership:
+    // core diamond contract ownership:
     function setContractOwner(address _newOwner) internal {
         DiamondStorage storage ds = diamondStorage();
         address previousOwner = ds.contractOwner;
