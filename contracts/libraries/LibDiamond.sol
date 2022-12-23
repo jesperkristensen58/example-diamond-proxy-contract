@@ -16,13 +16,13 @@ library LibDiamond {
     bytes32 constant NFT_STORAGE_POSITION = keccak256("diamond.nft.diamond.storage");
     bytes32 constant ERC20_STORAGE_POSITION = keccak256("diamond.erc20.diamond.storage");
 
+    event DiamondCut(FacetCut _diamondCut);
+    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+
     struct FacetCut {
         address facetAddress;
         bytes4[] functionSelectors;
     }
-
-    event DiamondCut(FacetCut _diamondCut);
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     struct FacetAddressAndPosition {
         address facetAddress;
