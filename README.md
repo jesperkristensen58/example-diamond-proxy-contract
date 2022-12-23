@@ -26,6 +26,14 @@ That's it.
 
 Then, to learn more, go look at `./test/createDiamond.js` which shows you fully how the diamond contract is deployed, how facets are added and how to run the various facet functions and test the entire contract.
 
+## Storage
+
+Let's talk about storage and where the state is stored. In this simple example, all state is shared and stored in the `libDiamond` library. The facets and their respective facet libraries (like `libERC20`) does not store state in this example. They could certainly have, but that's a different project design.
+
+So both facets have access to the same storage space stored in the diamond library. Each facet, as is necessary in a diamond contract, does not store state of course.
+
+To extend this code to allow the separate facets to have their own storage spaces is easy: just define the structs in the facet libraries and read/write to those instead of the global space. In this sense, the current code is in a "hybrid" state I suppose.
+
 ## Contact
 [![Twitter URL](https://img.shields.io/twitter/url/https/twitter.com/cryptojesperk.svg?style=social&label=Follow%20%40cryptojesperk)](https://twitter.com/cryptojesperk)
 
