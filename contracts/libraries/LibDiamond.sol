@@ -20,10 +20,11 @@ library LibDiamond {
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
 
     struct FacetCut {
-        address facetAddress;
-        bytes4[] functionSelectors;
+        address facetAddress; // address of the contract representing the facet of the diamond
+        bytes4[] functionSelectors; // which functions from this new facet do we want registered
     }
 
+    // Access existing facets and functions (aka selectors):
     struct FacetAddressAndPosition {
         address facetAddress;
         uint96 functionSelectorPosition; // position in facetFunctionSelectors.functionSelectors array
@@ -34,23 +35,9 @@ library LibDiamond {
         uint256 facetAddressPosition; // position of facetAddress in facetAddresses array
     }
 
-    /// Core diamond state:
-
-    // core diamond contract ownership:
-    function setContractOwner(address _newOwner) internal {
-        DiamondStorage storage ds = diamondStorage();
-        address previousOwner = ds.contractOwner;
-        ds.contractOwner = _newOwner;
-        emit OwnershipTransferred(previousOwner, _newOwner);
-    }
-
-    function contractOwner() internal view returns (address) {
-        return diamondStorage().contractOwner;
-    }
-
-    function enforceIsContractOwner() internal view {
-        require(_msgSender() == contractOwner(), "LibDiamond: Must be contract owner");
-    }
+    /** ==================================================================
+                        CUT NEW FACETS INTO THIS DIAMOND
+    =====================================================================*/
 
     // The main function that is used to cut new facets into the diamond (aka add a new contract and its functions to the diamond)
     // Internal function version of diamondCut
@@ -63,7 +50,7 @@ library LibDiamond {
         require(functionSelectors.length > 0, "LibDiamondCut: No selectors in facet to cut");
         require(facetAddress != address(0), "LibDiamondCut: Add facet can't be address(0)");
 
-        DiamondStorage storage ds = diamondStorage();
+        DiamondStorage storage ds = diamondStorage(); // store in "core" storage
 
         // where are we at in the selector array under this facet?
         uint96 selectorPosition = uint96(ds.facetFunctionSelectors[facetAddress].functionSelectors.length);
@@ -97,6 +84,39 @@ library LibDiamond {
     }
 
     /** ==================================================================
+                            Core Diamond State
+    =====================================================================*/
+
+    // core diamond contract ownership:
+    function setContractOwner(address _newOwner) internal {
+        DiamondStorage storage ds = diamondStorage();
+        address previousOwner = ds.contractOwner;
+        ds.contractOwner = _newOwner;
+        emit OwnershipTransferred(previousOwner, _newOwner);
+    }
+
+    function contractOwner() internal view returns (address) {
+        return diamondStorage().contractOwner;
+    }
+
+    function enforceIsContractOwner() internal view {
+        require(_msgSender() == contractOwner(), "LibDiamond: Must be contract owner");
+    }
+
+    function enforceHasContractCode(address _contract, string memory _errorMessage) private view {
+        uint256 contractSize;
+        assembly {
+            contractSize := extcodesize(_contract)
+        }
+        require(contractSize > 0, _errorMessage);
+    }
+
+    function _msgSender() private view returns (address) {
+        // put msg.sender behind a private view wall
+        return msg.sender;
+    }
+
+    /** ==================================================================
                             General Diamond Storage Space
     =====================================================================*/
 
@@ -115,7 +135,7 @@ library LibDiamond {
         address contractOwner;
     }
     
-    // access this storage via:
+    // access core storage via:
     function diamondStorage() internal pure returns (DiamondStorage storage ds) {
         bytes32 position = DIAMOND_STORAGE_POSITION;
         assembly {
@@ -136,7 +156,7 @@ library LibDiamond {
         mapping(uint256 => address) _tokenApprovals;
     }
     
-    // access the nft storage via:
+    // access nft storage via:
     function nftStorage() internal pure returns (NFTStorage storage ds) {
         bytes32 position = NFT_STORAGE_POSITION;
         assembly {
@@ -157,25 +177,11 @@ library LibDiamond {
         mapping(address => mapping(address => uint256)) _allowances;
     }
     
-    // access the nft storage via:
+    // access erc20 storage via:
     function erc20Storage() internal pure returns (ERC20Storage storage ds) {
         bytes32 position = ERC20_STORAGE_POSITION;
         assembly {
             ds.slot := position
         }
-    }
-
-    /// HELPERS
-
-    function _msgSender() private view returns (address) {
-        return msg.sender;
-    }
-
-    function enforceHasContractCode(address _contract, string memory _errorMessage) private view {
-        uint256 contractSize;
-        assembly {
-            contractSize := extcodesize(_contract)
-        }
-        require(contractSize > 0, _errorMessage);
     }
 }
