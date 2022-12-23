@@ -57,7 +57,7 @@ library LibDiamond {
 
         // add new facet address if it does not exist
         if (selectorPosition == 0) { // no selectors have been registered under this facet ever: hence, the facet does not exist; add it:
-            enforceHasContractCode(facetAddress, "LibDiamondCut: New facet has no code");
+            _enforceHasContractCode(facetAddress, "LibDiamondCut: New facet has no code");
             // store facet address
             ds.facetFunctionSelectors[facetAddress].facetAddressPosition = ds.facetAddresses.length;
             ds.facetAddresses.push(facetAddress);
@@ -103,7 +103,9 @@ library LibDiamond {
         require(_msgSender() == contractOwner(), "LibDiamond: Must be contract owner");
     }
 
-    function enforceHasContractCode(address _contract, string memory _errorMessage) private view {
+    // private functions in this section
+
+    function _enforceHasContractCode(address _contract, string memory _errorMessage) private view {
         uint256 contractSize;
         assembly {
             contractSize := extcodesize(_contract)
@@ -121,7 +123,7 @@ library LibDiamond {
     =====================================================================*/
 
     /**
-     * @notice global storage for all facets
+     * @notice Core diamond storage space (note that nft and erc20 are in different spaces)
      */
     struct DiamondStorage {
         // maps function selector to the facet address and
