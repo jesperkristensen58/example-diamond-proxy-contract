@@ -4,6 +4,11 @@
 
 The purpose of this repo is to show a simple example of a diamond contract. NOTE that this is for educational purposes only and is not intended to be used in production. Specifically, this implementation does not implement the required Loupe facet which is used to introspect facets. This is done because the repo represents a very minimal example trying to highlight the core elements before adding other facets on top.
 
+See this repo for a more fleshed out template which adheres to all aspects of the Diamond EIP2535:
+https://github.com/mudgen/diamond
+
+Note in particular these repos: https://github.com/mudgen/diamond#diamond-repositories
+
 ## How to Run it
 
 This repo provides a simple example of a diamond contract implementation and shows how it's deployed and tested from end to end.
