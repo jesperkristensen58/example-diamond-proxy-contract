@@ -11,7 +11,6 @@ import { LibERC20 } from  "../libraries/LibERC20.sol";
  * @author Jesper Kristensen
  */
 contract NFTFacet {
-    uint256 constant COST = 20; // 20 tokens per NFT is the price
 
     function mint(address to, uint256 tokenId) public {
         // call into the library functions to ensure the storage is updated correctly
@@ -37,10 +36,10 @@ contract NFTFacet {
     function mintWithERC20(uint256 tokenId) external {
         // mint an NFT via the ERC20 token deployed on another facet
 
-        // approve that thsi NFT facet uses the tokens minted elsewhere and on another facet:
-        // the erc20 and nft data are connected via the common diamondstorage:
-        LibERC20.erc20approve(msg.sender, address(this), COST);
-        LibERC20.erc20transferFrom(address(this), msg.sender, address(this), COST);
+        // approve that this NFT facet uses the tokens minted elsewhere and on another facet:
+        // the NFT pings the storage space of the erc20:
+        LibERC20.erc20approve(msg.sender, address(this), LibNFT.COST);
+        LibERC20.erc20transferFrom(address(this), msg.sender, address(this), LibNFT.COST);
 
         // now mint the NFT
         mint(_msgSender(), tokenId);

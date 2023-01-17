@@ -179,7 +179,7 @@ describe('Create a Simple Diamond Contract', async function () {
     expect(await erc20Facet.erc20balanceOf(bob.address)).to.equal(20)
     expect(await erc20Facet.erc20balanceOf(nftFacet.address)).to.equal(0)
 
-    // alice does not have any tokens, and can therefor not transfer anything
+    // alice does not have any tokens, and can therefore not transfer anything
     await expect(erc20Facet.connect(alice).erc20transfer(bob.address, 20)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
 
     // alice cannot transfer bob's tokens (w/o approval - and none has been given)
